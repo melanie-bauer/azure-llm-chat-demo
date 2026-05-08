@@ -1,0 +1,18 @@
+# Local secrets - never commit
+bicep/.env
+bicep/parameters.local.json
+bicep/parameters.*.local.json
+bicep/*.bicepparam
+
+# Bicep build artifacts
+bicep/**/*.json.bak
+bicep/main.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Misc
+*.log
