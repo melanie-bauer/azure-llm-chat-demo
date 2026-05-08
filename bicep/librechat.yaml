@@ -1,0 +1,45 @@
+# LibreChat configuration. Loaded only when deployLibreChat=true.
+# Per-user attribution into LiteLLM is achieved via dynamic headers
+# that interpolate {{LIBRECHAT_USER_*}} placeholders.
+
+version: 1.3.5
+
+cache: true
+
+interface:
+  privacyPolicy:
+    externalUrl: https://example.com/privacy
+  termsOfService:
+    externalUrl: https://example.com/terms
+
+registration:
+  socialLogins:
+    - openid
+
+balance:
+  enabled: false
+
+transactions:
+  enabled: true
+
+endpoints:
+  custom:
+    - name: LiteLLM
+      apiKey: ${LITELLM_API_KEY}
+      baseURL: ${LITELLM_BASE_URL}
+      models:
+        default:
+          - gpt-4o-mini
+          - gpt-4o
+        fetch: true
+      headers:
+        x-litellm-end-user-id: '{{LIBRECHAT_USER_ID}}'
+        x-litellm-customer-id: '{{LIBRECHAT_USER_EMAIL}}'
+        X-LibreChat-User-Id: '{{LIBRECHAT_USER_ID}}'
+        X-LibreChat-User-Email: '{{LIBRECHAT_USER_EMAIL}}'
+        X-Conversation-Id: '{{LIBRECHAT_BODY_CONVERSATIONID}}'
+      titleConvo: true
+      titleMethod: completion
+      titleModel: gpt-4o-mini
+      modelDisplayLabel: LiteLLM
+      summarize: false

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "_comment": "Copy to parameters.local.json (gitignored) and fill in values for local az deployments. CI/CD uses dev.parameters.json + GitHub Secrets instead.",
+  "parameters": {
+    "adminObjectId":               { "value": "REPLACE-ME-your-entra-object-id" },
+
+    "postgresAdminLogin":          { "value": "platformadmin" },
+    "postgresAdminPassword":       { "value": "REPLACE-ME-strong-password" },
+
+    "litellmMasterKey":            { "value": "sk-REPLACE-ME-master-key" },
+    "litellmServiceKey":           { "value": "sk-REPLACE-ME-service-key" },
+    "openWebUISecretKey":          { "value": "REPLACE-ME-32-byte-random-secret" },
+
+    "openWebUiUrl":                { "value": "" },
+    "libreChatUrl":                { "value": "" },
+
+    "oidcProviderUrl":             { "value": "https://login.microsoftonline.com/REPLACE-TENANT-ID/v2.0/.well-known/openid-configuration" },
+    "oidcOpenWebUIClientId":       { "value": "REPLACE-ME-entra-client-id" },
+    "oidcOpenWebUIClientSecret":   { "value": "REPLACE-ME-entra-client-secret" },
+
+    "oidcLibreChatClientId":       { "value": "" },
+    "oidcLibreChatClientSecret":   { "value": "" },
+    "librechatJwtSecret":          { "value": "" },
+    "librechatJwtRefreshSecret":   { "value": "" },
+    "librechatOidcSessionSecret":  { "value": "" },
+
+    "azureOpenAIKeyOverride":      { "value": "" }
+  }
+}
