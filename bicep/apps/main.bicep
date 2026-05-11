@@ -327,6 +327,7 @@ output openWebUIRedirectUri string = oidcOpenWebUIRedirectUri
 output litellmUrl string = litellm.outputs.publicUrl
 output libreChatUrl string = deployLibreChat ? libreChatEffectiveUrl : ''
 output libreChatRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}/oauth/openid/callback' : ''
+output libreChatAdminOauthRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}/api/admin/oauth/openid/callback' : ''
 output libreChatAdminUrl string = deployLibreChat ? libreChatAdminEffectiveUrl : ''
 output keyVaultUri string = keyVault.outputs.vaultUri
 output managedIdentityClientId string = userIdentity.properties.clientId

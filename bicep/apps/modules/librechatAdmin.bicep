@@ -2,9 +2,9 @@
 // Standalone web UI that talks to the LibreChat API at /api/admin/*
 // for user / role / group / config management. Requires LibreChat >= v0.8.5.
 //
-// Authentication is delegated to LibreChat (SSO redirects go through
-// VITE_API_BASE_URL which points at the LibreChat public URL), so this
-// Container App reuses the existing Entra app registration / redirect URI.
+// SSO uses the LibreChat API as authority (VITE_API_BASE_URL). Entra must
+// allow redirect URI: <libreChatUrl>/api/admin/oauth/openid/callback on the
+// same app registration as chat login (/oauth/openid/callback).
 
 param libreChatAdminName string
 param libreChatAdminImage string
@@ -48,6 +48,7 @@ var secrets = [
 var envVars = [
   { name: 'PORT', value: '3000' }
   { name: 'SESSION_SECRET', secretRef: 'admin-session-secret' }
+  { name: 'PUBLIC_URL', value: libreChatAdminUrl }
   { name: 'VITE_API_BASE_URL', value: libreChatUrl }
   { name: 'API_SERVER_URL', value: libreChatUrl }
   { name: 'ADMIN_SSO_ONLY', value: string(adminSsoOnly) }
