@@ -1,0 +1,16 @@
+{
+  "models": [
+    {
+      "deploymentName": "gpt-4.1-mini",
+      "modelName": "gpt-4.1-mini",
+      "version": "2025-04-14",
+      "capacity": 50
+    },
+    {
+      "deploymentName": "gpt-4.1",
+      "modelName": "gpt-4.1",
+      "version": "2025-04-14",
+      "capacity": 25
+    }
+  ]
+}

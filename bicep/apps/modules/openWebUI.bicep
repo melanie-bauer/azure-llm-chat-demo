@@ -45,10 +45,13 @@ param minReplicas int = 1
 @minValue(1)
 param maxReplicas int = 1
 
-param cpu string = '0.5'
-param memory string = '1Gi'
+@description('CPU cores per replica.')
+param cpu string = '1.0'
 
-var keyVaultBase = 'https://${keyVaultName}.vault.azure.net/secrets'
+@description('Memory per replica.')
+param memory string = '2Gi'
+
+var keyVaultBase = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/secrets'
 
 var secrets = [
   {
@@ -102,6 +105,9 @@ var coreEnv = [
   { name: 'OPENAI_API_BASE_URL', value: litellmBaseUrl }
   { name: 'OPENAI_API_KEY', secretRef: 'litellm-service-key' }
   { name: 'ENABLE_FORWARD_USER_INFO_HEADERS', value: 'True' }
+  { name: 'FORWARD_USER_INFO_HEADER_USER_ID', value: 'X-LiteLLM-User-Id' }
+  { name: 'FORWARD_USER_INFO_HEADER_USER_EMAIL', value: 'X-LiteLLM-User-Email' }
+  { name: 'FORWARD_USER_INFO_HEADER_USER_NAME', value: 'X-LiteLLM-User-Name' }
 
   { name: 'ENABLE_SIGNUP', value: 'False' }
   { name: 'ENABLE_LOGIN_FORM', value: 'False' }
@@ -113,8 +119,9 @@ var coreEnv = [
   { name: 'OPENID_REDIRECT_URI', value: oidcRedirectUri }
   { name: 'OAUTH_PROVIDER_NAME', value: oidcProviderName }
   { name: 'OAUTH_SCOPES', value: oidcScopes }
+  { name: 'OAUTH_SUB_CLAIM', value: 'oid' }
   { name: 'OAUTH_USERNAME_CLAIM', value: 'name' }
-  { name: 'OAUTH_EMAIL_CLAIM', value: 'email' }
+  { name: 'OAUTH_EMAIL_CLAIM', value: 'preferred_username' }
 
   { name: 'WEBUI_SESSION_COOKIE_SECURE', value: 'true' }
   { name: 'WEBUI_AUTH_COOKIE_SECURE', value: 'true' }
@@ -168,12 +175,22 @@ resource openWebUIApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
           env: envVars
           probes: [
             {
+              type: 'Startup'
+              httpGet: {
+                path: '/health'
+                port: 8080
+              }
+              initialDelaySeconds: 15
+              periodSeconds: 10
+              failureThreshold: 30
+            }
+            {
               type: 'Liveness'
               httpGet: {
                 path: '/health'
                 port: 8080
               }
-              initialDelaySeconds: 30
+              initialDelaySeconds: 60
               periodSeconds: 30
             }
           ]

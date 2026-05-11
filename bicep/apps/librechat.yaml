@@ -1,6 +1,6 @@
 # LibreChat configuration. Loaded only when deployLibreChat=true.
-# Per-user attribution into LiteLLM is achieved via dynamic headers
-# that interpolate {{LIBRECHAT_USER_*}} placeholders.
+# X-LiteLLM-User-Id uses {{LIBRECHAT_USER_OPENIDID}} (Entra object id / stable OIDC id),
+# not LIBRECHAT_USER_ID (local DB id), so it can match Open WebUI's OAUTH_SUB_CLAIM=oid.
 
 version: 1.3.5
 
@@ -29,17 +29,16 @@ endpoints:
       baseURL: ${LITELLM_BASE_URL}
       models:
         default:
-          - gpt-4o-mini
-          - gpt-4o
+          - gpt-4.1-mini
+          - gpt-4.1
         fetch: true
       headers:
-        x-litellm-end-user-id: '{{LIBRECHAT_USER_ID}}'
-        x-litellm-customer-id: '{{LIBRECHAT_USER_EMAIL}}'
-        X-LibreChat-User-Id: '{{LIBRECHAT_USER_ID}}'
-        X-LibreChat-User-Email: '{{LIBRECHAT_USER_EMAIL}}'
-        X-Conversation-Id: '{{LIBRECHAT_BODY_CONVERSATIONID}}'
+        X-LiteLLM-User-Id: '{{LIBRECHAT_USER_OPENIDID}}'
+        X-LiteLLM-User-Email: '{{LIBRECHAT_USER_EMAIL}}'
+        X-LiteLLM-User-Name: '{{LIBRECHAT_USER_NAME}}'
+        X-LiteLLM-Source-App: 'librechat'
       titleConvo: true
       titleMethod: completion
-      titleModel: gpt-4o-mini
+      titleModel: gpt-4.1-mini
       modelDisplayLabel: LiteLLM
       summarize: false

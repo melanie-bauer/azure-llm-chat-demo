@@ -26,12 +26,12 @@ param minReplicas int = 1
 param maxReplicas int = 1
 
 @description('CPU cores per replica.')
-param cpu string = '0.5'
+param cpu string = '1.0'
 
-@description('Memory per replica.')
-param memory string = '1Gi'
+@description('Memory per replica. LiteLLM + Python often needs >1Gi; 137/OOM is common at 1Gi.')
+param memory string = '2Gi'
 
-var keyVaultBase = 'https://${keyVaultName}.vault.azure.net/secrets'
+var keyVaultBase = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/secrets'
 
 var baseSecrets = [
   {
@@ -114,12 +114,22 @@ resource liteLLMApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
           ]
           probes: [
             {
+              type: 'Startup'
+              httpGet: {
+                path: '/health/liveliness'
+                port: 4000
+              }
+              initialDelaySeconds: 15
+              periodSeconds: 10
+              failureThreshold: 30
+            }
+            {
               type: 'Liveness'
               httpGet: {
                 path: '/health/liveliness'
                 port: 4000
               }
-              initialDelaySeconds: 30
+              initialDelaySeconds: 60
               periodSeconds: 30
             }
           ]

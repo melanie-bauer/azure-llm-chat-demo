@@ -1,55 +1,71 @@
-// Main composition for the Azure LLM Chat demo.
+// Main composition for the Azure LLM Chat demo (application stack).
 // Resource-group scope. Open WebUI + LiteLLM is the default stack;
 // LibreChat is optional via deployLibreChat=true.
+//
+// PREREQUISITE: infra/main.bicep must have been deployed first. It creates
+//   - the user-assigned managed identity (referenced here as 'existing')
+//   - the Azure OpenAI account + model deployments
+//
+// The deployment principal (CI service principal or local user) needs:
+//   - Contributor at the RG scope (create resources)
+//   - Role Based Access Control Administrator OR Owner (create RBAC bindings
+//     inside the Key Vault module)
+//   - Key Vault Secrets Officer (write secret values)
 
 targetScope = 'resourceGroup'
 
-// -------- core naming --------
+// -------- deterministic naming (abbreviation + projectName; matches bicep/infra/main.bicep) --------
+var abbrs = loadJsonContent('../abbreviations.json')
+
+@description('Short project label. Must match `projectName` in bicep/infra/main.bicep for identity and Azure OpenAI names.')
+param projectName string = 'llmchat'
+
+var storageAccountName = '${abbrs.StorageAccount}${projectName}'
+var workspaceName = '${abbrs.LogAnalyticsWorkspace}-${projectName}'
+var userIdentityName = '${abbrs.ManagedIdentity}-${projectName}'
+var keyVaultName = '${abbrs.KeyVault}-${projectName}'
+var envName = '${abbrs.ContainerAppsEnvironment}-${projectName}'
+var postgresServerName = '${abbrs.PostgreSQLDatabase}-${projectName}'
+var redisName = '${abbrs.AzureCacheForRedisInstance}-${projectName}'
+var azureOpenAIName = '${abbrs.AzureOpenAIService}-${projectName}'
+var mongoAccountName = '${abbrs.AzureCosmosDBForMongoDBAccount}-${projectName}'
+var openWebUIName = 'openwebui'
+var litellmName = 'litellm'
+var libreChatName = 'librechat'
+
 param location string = resourceGroup().location
-param namePrefix string = 'llmplatform'
 
-// -------- log analytics --------
-param workspaceName string = '${namePrefix}-logs'
+@description('Object ID (principal ID) of the admin principal in Entra ID. Receives Key Vault Secrets Officer at deploy time so secret values can be written.')
+param adminPrincipalId string
 
-// -------- storage --------
-param storageAccountName string = '${namePrefix}storage'
+@description('Principal type for `adminPrincipalId`. Use `Group` (recommended) when adminPrincipalId points at a security group, or `User` for a single human.')
+@allowed([ 'User', 'Group', 'ServicePrincipal' ])
+param adminPrincipalType string = 'User'
 
-// -------- managed identity --------
-param userIdentityName string = '${namePrefix}-identity'
+@description('Optional override for the managed identity principal ID. Leave empty to read principalId from the existing user-assigned identity (same name as infra).')
+param managedIdentityPrincipalId string = ''
 
-// -------- key vault --------
-param keyVaultName string = '${namePrefix}-vault'
-param adminObjectId string
-
-// -------- container apps env --------
-param envName string = '${namePrefix}-env'
+@description('Tags applied to apps-layer resources that accept tags (currently the Key Vault).')
+param tags object = {}
 
 // -------- postgres --------
-param postgresServerName string = '${namePrefix}-pg'
 param postgresAdminLogin string
 @secure()
 param postgresAdminPassword string
 @allowed([ 'Enabled', 'Disabled' ])
 param postgresPublicNetworkAccess string = 'Enabled'
 
-// -------- redis --------
-param redisName string = '${namePrefix}-redis'
-
 // -------- azure openai --------
-param azureOpenAIName string = '${namePrefix}-openai'
+// Account + model deployments are provisioned by bicep/infra/main.bicep first (same derived name as `azureOpenAIName`).
 param azureOpenAIApiVersion string = '2025-09-01'
-param createAzureOpenAI bool = false
-param createOpenAIModels bool = false
 
 @secure()
-@description('Optional override. Leave empty to let Bicep grab the key from the AOAI account.')
+@description('Optional override. Leave empty to let Bicep grab the key from the existing AOAI account.')
 param azureOpenAIKeyOverride string = ''
 
 // -------- core demo apps --------
-param openWebUIName string = 'openwebui'
 param openWebUIImage string = 'ghcr.io/open-webui/open-webui:v0.9.2'
 
-param litellmName string = 'litellm'
 param litellmImage string = 'docker.litellm.ai/berriai/litellm:main-v1.83.10-stable'
 
 @secure()
@@ -79,12 +95,9 @@ param oidcOpenWebUIClientSecret string
 
 // -------- LibreChat (optional) --------
 param deployLibreChat bool = false
-param libreChatName string = 'librechat'
 param libreChatImage string = 'ghcr.io/danny-avila/librechat:v0.8.5'
 @description('Optional custom URL of LibreChat. Leave empty to auto-derive from the Container Apps environment default domain.')
 param libreChatUrl string = ''
-param mongoAccountName string = '${namePrefix}-mongo'
-
 @secure()
 param oidcLibreChatClientId string = ''
 
@@ -116,9 +129,8 @@ var azureOpenAIEffectiveKey = !empty(azureOpenAIKeyOverride) ? azureOpenAIKeyOve
 // modules
 // =====================================================================
 
-resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' = {
+resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
   name: userIdentityName
-  location: location
 }
 
 module logs './modules/logAnalytics.bicep' = {
@@ -160,9 +172,6 @@ module aoai './modules/azureOpenAI.bicep' = {
   name: 'aoai'
   params: {
     openAIName: azureOpenAIName
-    location: location
-    createAzureOpenAI: createAzureOpenAI
-    createOpenAIModels: createOpenAIModels
   }
 }
 
@@ -171,9 +180,10 @@ module keyVault './modules/keyVault.bicep' = {
   params: {
     keyVaultName: keyVaultName
     location: location
-    adminObjectId: adminObjectId
-    managedIdentityPrincipalId: userIdentity.properties.principalId
-    grantAdminSecretsOfficer: true
+    tags: tags
+    adminPrincipalId: adminPrincipalId
+    adminPrincipalType: adminPrincipalType
+    managedIdentityPrincipalId: !empty(managedIdentityPrincipalId) ? managedIdentityPrincipalId : userIdentity.properties.principalId
     litellmMasterKeyValue: litellmMasterKey
     postgresUsernameValue: postgresAdminLogin
     postgresPasswordValue: postgresAdminPassword
@@ -188,7 +198,7 @@ module keyVault './modules/keyVault.bicep' = {
     azureOpenAIKeyValue: azureOpenAIEffectiveKey
     librechatJwtSecretValue: librechatJwtSecret
     librechatJwtRefreshSecretValue: librechatJwtRefreshSecret
-    librechatMongoUriValue: deployLibreChat ? mongo.outputs.mongoConnectionString : ''
+    librechatMongoUriValue: mongo.?outputs.mongoConnectionString ?? ''
     librechatOidcSessionSecretValue: librechatOidcSessionSecret
     litellmServiceKeyValue: litellmServiceKey
   }
@@ -284,3 +294,8 @@ output libreChatRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}
 output keyVaultUri string = keyVault.outputs.vaultUri
 output managedIdentityClientId string = userIdentity.properties.clientId
 output managedIdentityPrincipalId string = userIdentity.properties.principalId
+output containerAppNameOpenWebUI string = openWebUIName
+output containerAppNameLiteLLM string = litellmName
+output containerAppNameLibreChat string = libreChatName
+output userAssignedIdentityName string = userIdentityName
+output keyVaultNameOut string = keyVaultName

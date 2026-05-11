@@ -39,10 +39,13 @@ param minReplicas int = 1
 @minValue(1)
 param maxReplicas int = 1
 
-param cpu string = '0.5'
-param memory string = '1Gi'
+@description('CPU cores per replica.')
+param cpu string = '1.0'
 
-var keyVaultBase = 'https://${keyVaultName}.vault.azure.net/secrets'
+@description('Memory per replica. Node + LibreChat often needs >1Gi (OOM/137 at 1Gi).')
+param memory string = '2Gi'
+
+var keyVaultBase = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/secrets'
 
 var secrets = [
   {
@@ -171,6 +174,27 @@ resource libreChatApp 'Microsoft.App/containerApps@2024-10-02-preview' = {
             {
               volumeName: 'librechat-config'
               mountPath: '/app/config'
+            }
+          ]
+          probes: [
+            {
+              type: 'Startup'
+              httpGet: {
+                path: '/'
+                port: 3080
+              }
+              initialDelaySeconds: 15
+              periodSeconds: 10
+              failureThreshold: 30
+            }
+            {
+              type: 'Liveness'
+              httpGet: {
+                path: '/'
+                port: 3080
+              }
+              initialDelaySeconds: 60
+              periodSeconds: 30
             }
           ]
         }

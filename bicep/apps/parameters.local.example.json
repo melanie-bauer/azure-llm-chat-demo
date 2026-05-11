@@ -1,9 +1,11 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "_comment": "Copy to parameters.local.json (gitignored) and fill in values for local az deployments. CI/CD uses dev.parameters.json + GitHub Secrets instead.",
+  "_comment": "Copy to parameters.local.json (gitignored) and fill in values for local az deployments. CI/CD uses dev.parameters.json + GitHub Secrets instead. The user-assigned managed identity is provisioned by bicep/infra/main.bicep BEFORE this template runs; no secret is required for it unless you want to override managedIdentityPrincipalId manually.",
   "parameters": {
-    "adminObjectId":               { "value": "REPLACE-ME-your-entra-object-id" },
+    "adminPrincipalId":            { "value": "REPLACE-ME-your-entra-object-id-or-group-object-id" },
+    "adminPrincipalType":          { "value": "User" },
+    "managedIdentityPrincipalId":  { "value": "" },
 
     "postgresAdminLogin":          { "value": "platformadmin" },
     "postgresAdminPassword":       { "value": "REPLACE-ME-strong-password" },

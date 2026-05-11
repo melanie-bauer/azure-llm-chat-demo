@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'bicep/**'
+      - 'bicep/apps/**'
       - '.github/workflows/deploy.yaml'
   workflow_dispatch:
 
@@ -21,8 +21,8 @@ jobs:
     env:
       RG_NAME:    ${{ vars.RG_NAME }}
       LOCATION:   ${{ vars.LOCATION }}
-      BICEP_FILE: ./bicep/main.bicep
-      PARAM_FILE: ./bicep/dev.parameters.json
+      BICEP_FILE: ./bicep/apps/main.bicep
+      PARAM_FILE: ./bicep/apps/dev.parameters.json
 
     steps:
       - name: Checkout repository
@@ -55,7 +55,7 @@ jobs:
               --template-file "$BICEP_FILE" \
               --parameters @"$PARAM_FILE" \
               --parameters \
-                adminObjectId="${{ secrets.ADMIN_OBJECT_ID }}" \
+                adminPrincipalId="${{ secrets.ADMIN_OBJECT_ID }}" \
                 postgresAdminLogin="${{ secrets.POSTGRES_ADMIN_LOGIN }}" \
                 postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
                 litellmMasterKey="${{ secrets.LITELLM_MASTER_KEY }}" \
@@ -82,7 +82,7 @@ jobs:
               --template-file "$BICEP_FILE" \
               --parameters @"$PARAM_FILE" \
               --parameters \
-                adminObjectId="${{ secrets.ADMIN_OBJECT_ID }}" \
+                adminPrincipalId="${{ secrets.ADMIN_OBJECT_ID }}" \
                 postgresAdminLogin="${{ secrets.POSTGRES_ADMIN_LOGIN }}" \
                 postgresAdminPassword="${{ secrets.POSTGRES_ADMIN_PASSWORD }}" \
                 litellmMasterKey="${{ secrets.LITELLM_MASTER_KEY }}" \
