@@ -121,8 +121,6 @@ param libreChatAdminImage string = 'ghcr.io/clickhouse/librechat-admin-panel:lat
 @description('Optional custom URL of the LibreChat Admin Panel. Leave empty to auto-derive from the Container Apps environment default domain.')
 param libreChatAdminUrl string = ''
 
-@description('Force SSO-only login on the admin panel (hide email/password form).')
-param libreChatAdminSsoOnly bool = true
 
 @secure()
 @description('>= 32 chars random secret used to encrypt admin-panel sessions. Required when deployLibreChat = true.')
@@ -311,7 +309,6 @@ module librechatAdmin './modules/librechatAdmin.bicep' = if (deployLibreChat) {
     keyVaultName: keyVaultName
     libreChatUrl: libreChatEffectiveUrl
     libreChatAdminUrl: libreChatAdminEffectiveUrl
-    adminSsoOnly: libreChatAdminSsoOnly
   }
   dependsOn: [
     keyVault
@@ -327,7 +324,7 @@ output openWebUIRedirectUri string = oidcOpenWebUIRedirectUri
 output litellmUrl string = litellm.outputs.publicUrl
 output libreChatUrl string = deployLibreChat ? libreChatEffectiveUrl : ''
 output libreChatRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}/oauth/openid/callback' : ''
-output libreChatAdminOauthRedirectUri string = deployLibreChat ? '${libreChatAdminEffectiveUrl}/api/admin/oauth/openid/callback' : ''
+output libreChatAdminOauthRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}/api/admin/oauth/openid/callback' : ''
 output libreChatAdminUrl string = deployLibreChat ? libreChatAdminEffectiveUrl : ''
 output keyVaultUri string = keyVault.outputs.vaultUri
 output managedIdentityClientId string = userIdentity.properties.clientId

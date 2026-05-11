@@ -13,7 +13,6 @@
     "deployLibreChat":             { "value": true },
     "libreChatImage":              { "value": "ghcr.io/danny-avila/librechat:v0.8.5" },
     "libreChatAdminImage":         { "value": "ghcr.io/clickhouse/librechat-admin-panel:latest" },
-    "libreChatAdminSsoOnly":       { "value": false },
 
     "postgresPublicNetworkAccess": { "value": "Enabled" }
   }
