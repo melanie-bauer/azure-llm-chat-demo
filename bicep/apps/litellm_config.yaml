@@ -31,7 +31,9 @@ general_settings:
   ui_access_mode: admin_only
   # Email is the same stable principal string from both apps (Open WebUI forwards DB email; LibreChat
   # forwards profile email). Open WebUI still sends X-LiteLLM-User-Id as its internal id — kept in tags above.
-  user_header_name: X-LiteLLM-User-Email
+  user_header_mappings:
+    x-litellm-user-email: "*"
+    
   alerting:
     - slack
   alerting_threshold: 300
