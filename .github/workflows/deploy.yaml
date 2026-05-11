@@ -71,6 +71,7 @@ jobs:
                 librechatJwtSecret="${{ secrets.LIBRECHAT_JWT_SECRET }}" \
                 librechatJwtRefreshSecret="${{ secrets.LIBRECHAT_JWT_REFRESH_SECRET }}" \
                 librechatOidcSessionSecret="${{ secrets.LIBRECHAT_OIDC_SESSION_SECRET }}" \
+                librechatAdminSessionSecret="${{ secrets.LIBRECHAT_ADMIN_SESSION_SECRET }}" \
                 azureOpenAIKeyOverride="${{ secrets.AZURE_OPENAI_KEY_OVERRIDE }}"
 
       - name: Deploy
@@ -98,4 +99,5 @@ jobs:
                 librechatJwtSecret="${{ secrets.LIBRECHAT_JWT_SECRET }}" \
                 librechatJwtRefreshSecret="${{ secrets.LIBRECHAT_JWT_REFRESH_SECRET }}" \
                 librechatOidcSessionSecret="${{ secrets.LIBRECHAT_OIDC_SESSION_SECRET }}" \
+                librechatAdminSessionSecret="${{ secrets.LIBRECHAT_ADMIN_SESSION_SECRET }}" \
                 azureOpenAIKeyOverride="${{ secrets.AZURE_OPENAI_KEY_OVERRIDE }}"

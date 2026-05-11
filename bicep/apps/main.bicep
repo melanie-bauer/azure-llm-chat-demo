@@ -32,6 +32,7 @@ var mongoAccountName = '${abbrs.AzureCosmosDBForMongoDBAccount}-${projectName}'
 var openWebUIName = 'openwebui'
 var litellmName = 'litellm'
 var libreChatName = 'librechat'
+var libreChatAdminName = 'librechat-admin'
 
 param location string = resourceGroup().location
 
@@ -57,7 +58,7 @@ param postgresPublicNetworkAccess string = 'Enabled'
 
 // -------- azure openai --------
 // Account + model deployments are provisioned by bicep/infra/main.bicep first (same derived name as `azureOpenAIName`).
-param azureOpenAIApiVersion string = '2025-09-01'
+param azureOpenAIApiVersion string = '2024-12-01-preview'
 
 @secure()
 @description('Optional override. Leave empty to let Bicep grab the key from the existing AOAI account.')
@@ -113,6 +114,20 @@ param librechatJwtRefreshSecret string = ''
 @secure()
 param librechatOidcSessionSecret string = ''
 
+// -------- LibreChat Admin Panel (deployed when deployLibreChat = true) --------
+@description('LibreChat Admin Panel image. The project has no tagged releases yet; pin a digest in production.')
+param libreChatAdminImage string = 'ghcr.io/clickhouse/librechat-admin-panel:latest'
+
+@description('Optional custom URL of the LibreChat Admin Panel. Leave empty to auto-derive from the Container Apps environment default domain.')
+param libreChatAdminUrl string = ''
+
+@description('Force SSO-only login on the admin panel (hide email/password form).')
+param libreChatAdminSsoOnly bool = true
+
+@secure()
+@description('>= 32 chars random secret used to encrypt admin-panel sessions. Required when deployLibreChat = true.')
+param librechatAdminSessionSecret string = ''
+
 // -------- derived values --------
 var litellmDatabaseUrl = 'postgresql://${postgresAdminLogin}:${postgresAdminPassword}@${postgresServerName}.postgres.database.azure.com:5432/litellm?sslmode=require'
 var openWebUIDatabaseUrl = 'postgresql://${postgresAdminLogin}:${postgresAdminPassword}@${postgresServerName}.postgres.database.azure.com:5432/openwebui?sslmode=require'
@@ -120,6 +135,7 @@ var openWebUIDatabaseUrl = 'postgresql://${postgresAdminLogin}:${postgresAdminPa
 // Auto-derive public URLs from ACA environment default domain unless overridden.
 var openWebUiEffectiveUrl = !empty(openWebUiUrl) ? openWebUiUrl : 'https://${openWebUIName}.${containerEnv.outputs.defaultDomain}'
 var libreChatEffectiveUrl = !empty(libreChatUrl) ? libreChatUrl : 'https://${libreChatName}.${containerEnv.outputs.defaultDomain}'
+var libreChatAdminEffectiveUrl = !empty(libreChatAdminUrl) ? libreChatAdminUrl : 'https://${libreChatAdminName}.${containerEnv.outputs.defaultDomain}'
 var oidcOpenWebUIRedirectUri = '${openWebUiEffectiveUrl}/oauth/oidc/callback'
 
 // Auto-grab AOAI key unless an explicit override is provided.
@@ -200,6 +216,7 @@ module keyVault './modules/keyVault.bicep' = {
     librechatJwtRefreshSecretValue: librechatJwtRefreshSecret
     librechatMongoUriValue: mongo.?outputs.mongoConnectionString ?? ''
     librechatOidcSessionSecretValue: librechatOidcSessionSecret
+    librechatAdminSessionSecretValue: librechatAdminSessionSecret
     litellmServiceKeyValue: litellmServiceKey
   }
 }
@@ -283,6 +300,25 @@ module librechat './modules/librechat.bicep' = if (deployLibreChat) {
   ]
 }
 
+module librechatAdmin './modules/librechatAdmin.bicep' = if (deployLibreChat) {
+  name: 'librechatAdmin'
+  params: {
+    libreChatAdminName: libreChatAdminName
+    libreChatAdminImage: libreChatAdminImage
+    location: location
+    envId: containerEnv.outputs.environmentId
+    userIdentityResourceId: userIdentity.id
+    keyVaultName: keyVaultName
+    libreChatUrl: libreChatEffectiveUrl
+    libreChatAdminUrl: libreChatAdminEffectiveUrl
+    adminSsoOnly: libreChatAdminSsoOnly
+  }
+  dependsOn: [
+    keyVault
+    librechat
+  ]
+}
+
 // =====================================================================
 // outputs
 // =====================================================================
@@ -291,11 +327,13 @@ output openWebUIRedirectUri string = oidcOpenWebUIRedirectUri
 output litellmUrl string = litellm.outputs.publicUrl
 output libreChatUrl string = deployLibreChat ? libreChatEffectiveUrl : ''
 output libreChatRedirectUri string = deployLibreChat ? '${libreChatEffectiveUrl}/oauth/openid/callback' : ''
+output libreChatAdminUrl string = deployLibreChat ? libreChatAdminEffectiveUrl : ''
 output keyVaultUri string = keyVault.outputs.vaultUri
 output managedIdentityClientId string = userIdentity.properties.clientId
 output managedIdentityPrincipalId string = userIdentity.properties.principalId
 output containerAppNameOpenWebUI string = openWebUIName
 output containerAppNameLiteLLM string = litellmName
 output containerAppNameLibreChat string = libreChatName
+output containerAppNameLibreChatAdmin string = libreChatAdminName
 output userAssignedIdentityName string = userIdentityName
 output keyVaultNameOut string = keyVaultName

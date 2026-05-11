@@ -1,0 +1,53 @@
+name: apps
+
+# Manual rollout of a new container image to one Container App.
+# Use this for image bumps without re-running the full Bicep deployment.
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: Container app to roll forward
+        required: true
+        type: choice
+        options:
+          - openwebui
+          - litellm
+          - librechat
+      image:
+        description: Full image reference, e.g. ghcr.io/open-webui/open-webui:v0.9.2
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  RG_NAME: ${{ vars.RG_NAME }}
+
+jobs:
+  rollout:
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Update Container App image
+        run: |
+          az containerapp update \
+            --resource-group "$RG_NAME" \
+            --name "${{ inputs.app }}" \
+            --image "${{ inputs.image }}"
+      - name: Smoke test
+        run: |
+          FQDN=$(az containerapp show \
+            --resource-group "$RG_NAME" \
+            --name "${{ inputs.app }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)
+          echo "Hitting https://$FQDN"
+          curl -fsSL --max-time 30 "https://$FQDN/" >/dev/null || \
+          curl -fsSL --max-time 30 "https://$FQDN/health" >/dev/null

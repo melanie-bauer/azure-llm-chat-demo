@@ -79,6 +79,9 @@ param librechatMongoUriValue string = ''
 param librechatOidcSessionSecretValue string = ''
 
 @secure()
+param librechatAdminSessionSecretValue string = ''
+
+@secure()
 param litellmServiceKeyValue string
 
 var roles = loadJsonContent('../../azure-roles.json')
@@ -101,9 +104,10 @@ var optionalSecrets = filter([
   { name: 'LibreChatOidcClientSecret',  value: oidcLibreChatClientSecret }
   { name: 'LibreChatJwtSecret',         value: librechatJwtSecretValue }
   { name: 'LibreChatJwtRefreshSecret',  value: librechatJwtRefreshSecretValue }
-  { name: 'LibreChatMongoUri',          value: librechatMongoUriValue }
-  { name: 'LibreChatOidcSessionSecret', value: librechatOidcSessionSecretValue }
-  { name: 'AzureOpenAIKey',             value: azureOpenAIKeyValue }
+  { name: 'LibreChatMongoUri',           value: librechatMongoUriValue }
+  { name: 'LibreChatOidcSessionSecret',  value: librechatOidcSessionSecretValue }
+  { name: 'LibreChatAdminSessionSecret', value: librechatAdminSessionSecretValue }
+  { name: 'AzureOpenAIKey',              value: azureOpenAIKeyValue }
 ], s => !empty(s.value))
 
 var allSecrets = concat(requiredSecrets, optionalSecrets)

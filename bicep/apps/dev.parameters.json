@@ -3,7 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "projectName":                 { "value": "llmchat" },
-    "azureOpenAIApiVersion":       { "value": "2025-09-01" },
+    "azureOpenAIApiVersion":       { "value": "2024-12-01-preview" },
     "managedIdentityPrincipalId":  { "value": "" },
 
     "openWebUIImage":              { "value": "ghcr.io/open-webui/open-webui:v0.9.2" },
@@ -12,6 +12,8 @@
 
     "deployLibreChat":             { "value": true },
     "libreChatImage":              { "value": "ghcr.io/danny-avila/librechat:v0.8.5" },
+    "libreChatAdminImage":         { "value": "ghcr.io/clickhouse/librechat-admin-panel:latest" },
+    "libreChatAdminSsoOnly":       { "value": true },
 
     "postgresPublicNetworkAccess": { "value": "Enabled" }
   }

@@ -21,12 +21,13 @@
     "oidcOpenWebUIClientId":       { "value": "REPLACE-ME-entra-client-id" },
     "oidcOpenWebUIClientSecret":   { "value": "REPLACE-ME-entra-client-secret" },
 
-    "oidcLibreChatClientId":       { "value": "" },
-    "oidcLibreChatClientSecret":   { "value": "" },
-    "librechatJwtSecret":          { "value": "" },
-    "librechatJwtRefreshSecret":   { "value": "" },
-    "librechatOidcSessionSecret":  { "value": "" },
+    "oidcLibreChatClientId":         { "value": "" },
+    "oidcLibreChatClientSecret":     { "value": "" },
+    "librechatJwtSecret":            { "value": "" },
+    "librechatJwtRefreshSecret":     { "value": "" },
+    "librechatOidcSessionSecret":    { "value": "" },
+    "librechatAdminSessionSecret":   { "value": "" },
 
-    "azureOpenAIKeyOverride":      { "value": "" }
+    "azureOpenAIKeyOverride":        { "value": "" }
   }
 }
