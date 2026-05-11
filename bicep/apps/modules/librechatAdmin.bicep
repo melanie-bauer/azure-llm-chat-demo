@@ -49,6 +49,7 @@ var envVars = [
   { name: 'PORT', value: '3000' }
   { name: 'SESSION_SECRET', secretRef: 'admin-session-secret' }
   { name: 'PUBLIC_URL', value: libreChatAdminUrl }
+  { name: 'VITE_PUBLIC_URL', value: libreChatAdminUrl }
   { name: 'VITE_API_BASE_URL', value: libreChatUrl }
   { name: 'API_SERVER_URL', value: libreChatUrl }
   { name: 'ADMIN_SSO_ONLY', value: string(adminSsoOnly) }

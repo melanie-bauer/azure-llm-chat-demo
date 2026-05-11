@@ -1,6 +1,7 @@
 # LibreChat configuration. Loaded only when deployLibreChat=true.
-# X-LiteLLM-User-Id uses {{LIBRECHAT_USER_OPENIDID}} (Entra object id / stable OIDC id),
-# not LIBRECHAT_USER_ID (local DB id), so it can match Open WebUI's OAUTH_SUB_CLAIM=oid.
+# LiteLLM customer id is X-LiteLLM-User-Email (see litellm_config.yaml user_header_name).
+# X-LiteLLM-User-Id uses Entra OID ({{LIBRECHAT_USER_OPENIDID}}) for correlation in spend tags only;
+# Open WebUI forwards its internal user id in the same header, so ids differ across apps unless you use email as canonical.
 
 version: 1.3.5
 

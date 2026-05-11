@@ -15,19 +15,23 @@ litellm_settings:
     max_budget: 100.0
     budget_duration: 30d
 
+  max_end_user_budget: 0.5
+
   success_callback:
     - prometheus
 
-  # Logged as metadata; canonical end-user id is general_settings.user_header_name
+  # Logged as metadata; canonical customer id for spend UI + max_end_user_budget is user_header_name
   extra_spend_tag_headers:
+    - x-litellm-user-id
     - x-litellm-user-email
     - x-litellm-user-name
     - x-litellm-source-app
 
 general_settings:
   ui_access_mode: admin_only
-  # Single header both Open WebUI and LibreChat send (see openWebUI.bicep + librechat.yaml)
-  user_header_name: X-LiteLLM-User-Id
+  # Email is the same stable principal string from both apps (Open WebUI forwards DB email; LibreChat
+  # forwards profile email). Open WebUI still sends X-LiteLLM-User-Id as its internal id — kept in tags above.
+  user_header_name: X-LiteLLM-User-Email
   alerting:
     - slack
   alerting_threshold: 300
