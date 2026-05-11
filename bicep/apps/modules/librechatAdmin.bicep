@@ -2,9 +2,10 @@
 // Standalone web UI that talks to the LibreChat API at /api/admin/*
 // for user / role / group / config management. Requires LibreChat >= v0.8.5.
 //
-// SSO uses the LibreChat API as authority (VITE_API_BASE_URL). Entra must
-// allow redirect URI: <libreChatUrl>/api/admin/oauth/openid/callback on the
-// same app registration as chat login (/oauth/openid/callback).
+// Browser SSO must start on this admin app (VITE_API_BASE_URL = admin URL), or the
+// client builds /api/admin/oauth/openid against the main LibreChat host and returns Unauthorized.
+// The admin server proxies API calls to LibreChat (API_SERVER_URL). Entra: register
+// <libreChatAdminUrl>/api/admin/oauth/openid/callback plus <libreChatUrl>/oauth/openid/callback.
 
 param libreChatAdminName string
 param libreChatAdminImage string
@@ -50,7 +51,7 @@ var envVars = [
   { name: 'SESSION_SECRET', secretRef: 'admin-session-secret' }
   { name: 'PUBLIC_URL', value: libreChatAdminUrl }
   { name: 'VITE_PUBLIC_URL', value: libreChatAdminUrl }
-  { name: 'VITE_API_BASE_URL', value: libreChatUrl }
+  { name: 'VITE_API_BASE_URL', value: libreChatAdminUrl }
   { name: 'API_SERVER_URL', value: libreChatUrl }
   { name: 'ADMIN_SSO_ONLY', value: string(adminSsoOnly) }
   { name: 'ADMIN_SESSION_IDLE_TIMEOUT_MS', value: string(adminSessionIdleTimeoutMs) }
