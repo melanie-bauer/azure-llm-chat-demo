@@ -119,6 +119,10 @@ var coreEnv = [
   { name: 'OPENID_USE_END_SESSION_ENDPOINT', value: 'true' }
   { name: 'OPENID_REUSE_TOKENS', value: 'true' }
 
+  { name: 'OPENID_ADMIN_ROLE', value: 'admin' }
+  { name: 'OPENID_ADMIN_ROLE_PARAMETER_PATH', value: 'roles' }
+  { name: 'OPENID_ADMIN_ROLE_TOKEN_KIND', value: 'id' }
+
   { name: 'LITELLM_BASE_URL', value: litellmBaseUrl }
   { name: 'LITELLM_API_KEY', secretRef: 'litellm-service-key' }
 
