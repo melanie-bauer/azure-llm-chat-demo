@@ -60,18 +60,14 @@ resource pgvectorExt 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2
   }
 }
 
-// Serialize mutations: Flexible Server often returns ServerIsBusy if azure.extensions,
-// databases, and firewall rules are applied in parallel.
 resource dbLitellm 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: postgresServer
   name: databaseName
-  dependsOn: [pgvectorExt]
 }
 
 resource dbOpenWebUI 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: postgresServer
   name: 'openwebui'
-  dependsOn: [dbLitellm]
 }
 
 resource fwAllowAzure 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = if (allowAllAzureServices) {
@@ -81,7 +77,6 @@ resource fwAllowAzure 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
   }
-  dependsOn: [dbOpenWebUI]
 }
 
 resource fwAllowed 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = [for (range, i) in allowedIpRanges: {
@@ -91,9 +86,6 @@ resource fwAllowed 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024
     startIpAddress: range.start
     endIpAddress: range.end
   }
-  dependsOn: i == 0
-    ? (allowAllAzureServices ? [fwAllowAzure] : [dbOpenWebUI])
-    : [fwAllowed[i - 1]]
 }]
 
 output postgresHost string = '${serverName}.postgres.database.azure.com'
