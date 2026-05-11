@@ -3,9 +3,6 @@
 // - the Key Vault
 // - role assignments for app identity and admin principal
 // - all required secrets
-//
-// NOTE: No explicit `dependsOn` to role assignments is required here.
-// AVM handles resource ordering internally.
 
 param keyVaultName string
 param location string = resourceGroup().location
