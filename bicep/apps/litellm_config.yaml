@@ -15,12 +15,11 @@ litellm_settings:
     max_budget: 100.0
     budget_duration: 30d
 
-  max_end_user_budget: 0.5
+  max_end_user_budget_id: demo-budget
 
   success_callback:
     - prometheus
 
-  # Logged as metadata; canonical customer id for spend UI + max_end_user_budget is user_header_name
   extra_spend_tag_headers:
     - x-litellm-user-id
     - x-litellm-user-email
@@ -33,7 +32,7 @@ general_settings:
   # forwards profile email). Open WebUI still sends X-LiteLLM-User-Id as its internal id — kept in tags above.
   user_header_mappings:
     x-litellm-user-email: "*"
-    
+
   alerting:
     - slack
   alerting_threshold: 300
