@@ -96,7 +96,7 @@ param oidcOpenWebUIClientSecret string
 
 // -------- LibreChat (optional) --------
 param deployLibreChat bool = false
-param libreChatImage string = 'ghcr.io/danny-avila/librechat:v0.8.5'
+param libreChatImage string = 'librechat/librechat:v0.8.5'
 @description('Optional custom URL of LibreChat. Leave empty to auto-derive from the Container Apps environment default domain.')
 param libreChatUrl string = ''
 @secure()

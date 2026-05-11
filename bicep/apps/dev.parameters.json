@@ -11,7 +11,7 @@
     "litellmImage":                { "value": "docker.litellm.ai/berriai/litellm:main-v1.83.10-stable" },
 
     "deployLibreChat":             { "value": true },
-    "libreChatImage":              { "value": "ghcr.io/danny-avila/librechat:v0.8.5" },
+    "libreChatImage":              { "value": "librechat/librechat:v0.8.5" },
     "libreChatAdminImage":         { "value": "ghcr.io/clickhouse/librechat-admin-panel:latest" },
 
     "postgresPublicNetworkAccess": { "value": "Enabled" }
