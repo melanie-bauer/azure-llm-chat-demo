@@ -49,10 +49,7 @@ var secrets = [
 var envVars = [
   { name: 'PORT', value: '3000' }
   { name: 'SESSION_SECRET', secretRef: 'admin-session-secret' }
-  { name: 'PUBLIC_URL', value: libreChatAdminUrl }
-  { name: 'VITE_PUBLIC_URL', value: libreChatAdminUrl }
-  { name: 'VITE_API_BASE_URL', value: libreChatAdminUrl }
-  { name: 'API_SERVER_URL', value: libreChatUrl }
+  { name: 'API_SERVER_URL', value: libreChatAdminUrl }
   { name: 'ADMIN_SSO_ONLY', value: string(adminSsoOnly) }
   { name: 'ADMIN_SESSION_IDLE_TIMEOUT_MS', value: string(adminSessionIdleTimeoutMs) }
   { name: 'SESSION_COOKIE_SECURE', value: 'true' }
