@@ -12,7 +12,7 @@
 
     "deployLibreChat":             { "value": true },
     "libreChatImage":              { "value": "librechat/librechat:v0.8.5" },
-    "libreChatAdminImage":         { "value": "ghcr.io/clickhouse/librechat-admin-panel:latest" },
+    "libreChatAdminImage":         { "value": "ghcr.io/clickhouse/librechat-admin-panel:2928b61ada0f82c2d4ddb08e167b2a8a039d8d33" },
 
     "postgresPublicNetworkAccess": { "value": "Enabled" }
   }

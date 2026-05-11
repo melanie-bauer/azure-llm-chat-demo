@@ -127,6 +127,7 @@ var coreEnv = [
   { name: 'LITELLM_API_KEY', secretRef: 'litellm-service-key' }
 
   { name: 'CONFIG_PATH', value: librechatConfigPath }
+  { name: 'ADMIN_PANEL_URL', value: 'https://librechat-admin.calmglacier-bdbc6f5e.swedencentral.azurecontainerapps.io' }
 ]
 
 var roleEnv = empty(oidcRequiredRoles) ? [] : [
