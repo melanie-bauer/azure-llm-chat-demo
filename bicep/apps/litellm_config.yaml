@@ -6,31 +6,31 @@ litellm_settings:
   json_logs: true
 
   store_model_in_db: true
-  store_prompts_in_spend_logs: false
+  store_prompts_in_spend_logs: true
 
   default_key_generate_params:
     max_budget: 100.0
     budget_duration: 30d
 
-  max_end_user_budget_id: demo-budget
+  max_end_user_budget_id: "demo-budget"
 
   success_callback:
     - prometheus
 
   extra_spend_tag_headers:
-    - 'X-LiteLLM-User-Id'
-    - 'X-LiteLLM-User-Email'
-    - 'X-LiteLLM-User-Name'
-    - 'X-LiteLLM-Source-App'
+    - "X-LiteLLM-User-Id"
+    - "X-LiteLLM-User-Email"
+    - "X-LiteLLM-User-Name"
+    - "X-LiteLLM-Source-App"
 
 general_settings:
   ui_access_mode: admin_only
 
   # Frontends send X-LiteLLM-* headers; email is the customer dimension for spend and budgets.
   user_header_mappings:
-    - header_name: 'X-LiteLLM-User-Email'
+    - header_name: "X-LiteLLM-User-Email"
       litellm_user_role: customer
-    - header_name: 'X-LiteLLM-User-Id'
+    - header_name: "X-LiteLLM-User-Id"
       litellm_user_role: internal_user
 
   alerting:
