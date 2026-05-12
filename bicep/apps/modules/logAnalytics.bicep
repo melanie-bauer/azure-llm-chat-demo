@@ -1,7 +1,10 @@
-// Log Analytics workspace used by the Container Apps environment.
-
+@description('Log Analytics workspace name.')
 param workspaceName string
+
+@description('Azure region for the workspace.')
 param location string = resourceGroup().location
+
+@description('Log Analytics retention period in days.')
 param retentionDays int = 30
 
 resource logAnalytics 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {

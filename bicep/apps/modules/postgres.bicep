@@ -1,27 +1,39 @@
-// Azure Database for PostgreSQL Flexible Server.
-// pgvector extension is enabled via server parameter so Open WebUI can
-// use VECTOR_DB=pgvector.
-
+@description('Azure region for PostgreSQL Flexible Server.')
 param location string
+
+@description('PostgreSQL Flexible Server name.')
 param serverName string
+
+@description('PostgreSQL administrator login name.')
 param administratorLogin string
 
 @secure()
+@description('PostgreSQL administrator password.')
 param administratorLoginPassword string
 
+@description('Whether PostgreSQL public network access is enabled.')
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'
 
-@description('Allow other Azure services (Container Apps egress IPs are dynamic). Demo only.')
+@description('Whether to add the Azure-services firewall rule.')
 param allowAllAzureServices bool = true
 
-@description('Optional list of explicit IPv4 ranges to whitelist (e.g. your office IP).')
+@description('Explicit IPv4 ranges to add as PostgreSQL firewall rules.')
 param allowedIpRanges array = []
 
+@description('PostgreSQL Flexible Server SKU tier.')
 param serverEdition string = 'Burstable'
+
+@description('PostgreSQL Flexible Server SKU name.')
 param dbInstanceType string = 'Standard_B1ms'
+
+@description('PostgreSQL storage size in GB.')
 param storageSizeGB int = 32
+
+@description('PostgreSQL major version.')
 param postgresVersion string = '16'
+
+@description('LiteLLM database name.')
 param databaseName string = 'litellm'
 
 resource postgresServer 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
@@ -63,11 +75,13 @@ resource pgvectorExt 'Microsoft.DBforPostgreSQL/flexibleServers/configurations@2
 resource dbLitellm 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: postgresServer
   name: databaseName
+  dependsOn: [pgvectorExt]
 }
 
 resource dbOpenWebUI 'Microsoft.DBforPostgreSQL/flexibleServers/databases@2024-08-01' = {
   parent: postgresServer
   name: 'openwebui'
+  dependsOn: [dbLitellm]
 }
 
 resource fwAllowAzure 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = if (allowAllAzureServices) {
@@ -77,6 +91,7 @@ resource fwAllowAzure 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2
     startIpAddress: '0.0.0.0'
     endIpAddress: '0.0.0.0'
   }
+  dependsOn: [dbOpenWebUI]
 }
 
 resource fwAllowed 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024-08-01' = [for (range, i) in allowedIpRanges: {
@@ -86,6 +101,7 @@ resource fwAllowed 'Microsoft.DBforPostgreSQL/flexibleServers/firewallRules@2024
     startIpAddress: range.start
     endIpAddress: range.end
   }
+  dependsOn: allowAllAzureServices ? [fwAllowAzure] : [dbOpenWebUI]
 }]
 
 output postgresHost string = '${serverName}.postgres.database.azure.com'

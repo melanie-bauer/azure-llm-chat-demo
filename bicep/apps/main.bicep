@@ -1,20 +1,5 @@
-// Main composition for the Azure LLM Chat demo (application stack).
-// Resource-group scope. Open WebUI + LiteLLM is the default stack;
-// LibreChat is optional via deployLibreChat=true.
-//
-// PREREQUISITE: infra/main.bicep must have been deployed first. It creates
-//   - the user-assigned managed identity (referenced here as 'existing')
-//   - the Azure OpenAI account + model deployments
-//
-// The deployment principal (CI service principal or local user) needs:
-//   - Contributor at the RG scope (create resources)
-//   - Role Based Access Control Administrator OR Owner (create RBAC bindings
-//     inside the Key Vault module)
-//   - Key Vault Secrets Officer (write secret values)
-
 targetScope = 'resourceGroup'
 
-// -------- deterministic naming (abbreviation + projectName; matches bicep/infra/main.bicep) --------
 var abbrs = loadJsonContent('../abbreviations.json')
 
 @description('Short project label. Must match `projectName` in bicep/infra/main.bicep for identity and Azure OpenAI names.')
@@ -34,6 +19,7 @@ var litellmName = 'litellm'
 var libreChatName = 'librechat'
 var libreChatAdminName = 'librechat-admin'
 
+@description('Azure region for app-layer resources.')
 param location string = resourceGroup().location
 
 @description('Object ID (principal ID) of the admin principal in Entra ID. Receives Key Vault Secrets Officer at deploy time so secret values can be written.')
@@ -49,99 +35,103 @@ param managedIdentityPrincipalId string = ''
 @description('Tags applied to apps-layer resources that accept tags (currently the Key Vault).')
 param tags object = {}
 
-// -------- postgres --------
+@description('PostgreSQL administrator login name.')
 param postgresAdminLogin string
 @secure()
+@description('PostgreSQL administrator password.')
 param postgresAdminPassword string
+
+@description('Whether PostgreSQL public network access is enabled.')
 @allowed([ 'Enabled', 'Disabled' ])
 param postgresPublicNetworkAccess string = 'Enabled'
 
-// -------- azure openai --------
-// Account + model deployments are provisioned by bicep/infra/main.bicep first (same derived name as `azureOpenAIName`).
+@description('Azure OpenAI API version used by LiteLLM.')
 param azureOpenAIApiVersion string = '2024-12-01-preview'
 
 @secure()
-@description('Optional override. Leave empty to let Bicep grab the key from the existing AOAI account.')
+@description('Optional Azure OpenAI key override. Leave empty to read the key from the existing Azure OpenAI account.')
 param azureOpenAIKeyOverride string = ''
 
-// -------- core demo apps --------
+@description('Open WebUI container image.')
 param openWebUIImage string = 'ghcr.io/open-webui/open-webui:v0.9.2'
 
+@description('LiteLLM container image.')
 param litellmImage string = 'docker.litellm.ai/berriai/litellm:main-v1.83.10-stable'
 
 @secure()
+@description('LiteLLM master key used for proxy administration and /ui login.')
 param litellmMasterKey string
 
 @secure()
-@description('LiteLLM virtual key used by Open WebUI / LibreChat as Bearer.')
+@description('LiteLLM virtual key used by Open WebUI and LibreChat.')
 param litellmServiceKey string
 
 @secure()
-@description('Random >= 32 byte secret used by Open WebUI for cookies/JWT.')
+@description('Random secret used by Open WebUI for cookies and JWT signing.')
 param openWebUISecretKey string
 
-// -------- public hostnames --------
 @description('Optional custom URL of Open WebUI. Leave empty to auto-derive from the Container Apps environment default domain.')
 param openWebUiUrl string = ''
 
-// -------- OIDC: Open WebUI --------
 @description('OIDC well-known URL (e.g. https://login.microsoftonline.com/<tenant>/v2.0/.well-known/openid-configuration).')
 param oidcProviderUrl string
 
 @secure()
+@description('Open WebUI Entra application client ID.')
 param oidcOpenWebUIClientId string
 
 @secure()
+@description('Open WebUI Entra application client secret.')
 param oidcOpenWebUIClientSecret string
 
-// -------- LibreChat (optional) --------
+@description('Deploy LibreChat and LibreChat Admin Panel in addition to Open WebUI.')
 param deployLibreChat bool = false
+
+@description('LibreChat container image.')
 param libreChatImage string = 'librechat/librechat:v0.8.5'
+
 @description('Optional custom URL of LibreChat. Leave empty to auto-derive from the Container Apps environment default domain.')
 param libreChatUrl string = ''
+
 @secure()
+@description('LibreChat Entra application client ID.')
 param oidcLibreChatClientId string = ''
 
 @secure()
+@description('LibreChat Entra application client secret.')
 param oidcLibreChatClientSecret string = ''
 
 @secure()
+@description('LibreChat JWT signing secret.')
 param librechatJwtSecret string = ''
 
 @secure()
+@description('LibreChat refresh-token signing secret.')
 param librechatJwtRefreshSecret string = ''
 
 @secure()
+@description('LibreChat OpenID session secret.')
 param librechatOidcSessionSecret string = ''
 
-// -------- LibreChat Admin Panel (deployed when deployLibreChat = true) --------
-@description('LibreChat Admin Panel image. The project has no tagged releases yet; pin a digest in production.')
+@description('LibreChat Admin Panel container image.')
 param libreChatAdminImage string = 'ghcr.io/clickhouse/librechat-admin-panel:latest'
 
 @description('Optional custom URL of the LibreChat Admin Panel. Leave empty to auto-derive from the Container Apps environment default domain.')
 param libreChatAdminUrl string = ''
 
-
 @secure()
-@description('>= 32 chars random secret used to encrypt admin-panel sessions. Required when deployLibreChat = true.')
+@description('Random secret used to encrypt LibreChat Admin Panel sessions.')
 param librechatAdminSessionSecret string = ''
 
-// -------- derived values --------
 var litellmDatabaseUrl = 'postgresql://${postgresAdminLogin}:${postgresAdminPassword}@${postgresServerName}.postgres.database.azure.com:5432/litellm?sslmode=require'
 var openWebUIDatabaseUrl = 'postgresql://${postgresAdminLogin}:${postgresAdminPassword}@${postgresServerName}.postgres.database.azure.com:5432/openwebui?sslmode=require'
 
-// Auto-derive public URLs from ACA environment default domain unless overridden.
 var openWebUiEffectiveUrl = !empty(openWebUiUrl) ? openWebUiUrl : 'https://${openWebUIName}.${containerEnv.outputs.defaultDomain}'
 var libreChatEffectiveUrl = !empty(libreChatUrl) ? libreChatUrl : 'https://${libreChatName}.${containerEnv.outputs.defaultDomain}'
 var libreChatAdminEffectiveUrl = !empty(libreChatAdminUrl) ? libreChatAdminUrl : 'https://${libreChatAdminName}.${containerEnv.outputs.defaultDomain}'
 var oidcOpenWebUIRedirectUri = '${openWebUiEffectiveUrl}/oauth/oidc/callback'
 
-// Auto-grab AOAI key unless an explicit override is provided.
 var azureOpenAIEffectiveKey = !empty(azureOpenAIKeyOverride) ? azureOpenAIKeyOverride : aoai.outputs.azureOpenAIKey
-
-// =====================================================================
-// modules
-// =====================================================================
 
 resource userIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30' existing = {
   name: userIdentityName
@@ -290,6 +280,7 @@ module librechat './modules/librechat.bicep' = if (deployLibreChat) {
     userIdentityResourceId: userIdentity.id
     keyVaultName: keyVaultName
     libreChatUrl: libreChatEffectiveUrl
+    adminPanelUrl: libreChatAdminEffectiveUrl
     litellmBaseUrl: '${litellm.outputs.publicUrl}/v1'
     oidcIssuer: replace(oidcProviderUrl, '/.well-known/openid-configuration', '')
   }
@@ -316,9 +307,6 @@ module librechatAdmin './modules/librechatAdmin.bicep' = if (deployLibreChat) {
   ]
 }
 
-// =====================================================================
-// outputs
-// =====================================================================
 output openWebUIUrl string = openWebUiEffectiveUrl
 output openWebUIRedirectUri string = oidcOpenWebUIRedirectUri
 output litellmUrl string = litellm.outputs.publicUrl

@@ -1,18 +1,22 @@
-// Azure Cache for Redis. Used by Open WebUI for token revocation and
-// websocket fan-out, and optionally by LibreChat (USE_REDIS=true).
-
+@description('Azure Cache for Redis name.')
 param redisName string
+
+@description('Azure region for Redis.')
 param location string
 
+@description('Redis SKU name.')
 @allowed([ 'Basic', 'Standard', 'Premium' ])
 param skuName string = 'Basic'
 
+@description('Redis SKU family.')
 @allowed([ 'C', 'P' ])
 param skuFamily string = 'C'
 
 @minValue(0)
+@description('Redis SKU capacity.')
 param skuCapacity int = 0
 
+@description('Whether Redis public network access is enabled.')
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'
 

@@ -1,8 +1,3 @@
-# LibreChat configuration. Loaded only when deployLibreChat=true.
-# LiteLLM Spend-per-customer uses x-litellm-user-email via user_header_mappings (litellm_config.yaml).
-# X-LiteLLM-User-Id uses Entra OID ({{LIBRECHAT_USER_OPENIDID}}) for correlation in spend tags only;
-# Open WebUI forwards its internal user id in the same header, so ids differ across apps unless you use email as canonical.
-
 version: 1.3.5
 
 cache: true
@@ -34,6 +29,7 @@ endpoints:
           - gpt-4.1
         fetch: true
       headers:
+        # LiteLLM treats email as the customer identifier; IDs are kept for correlation.
         X-LiteLLM-User-Id: '{{LIBRECHAT_USER_OPENIDID}}'
         X-LiteLLM-User-Email: '{{LIBRECHAT_USER_EMAIL}}'
         X-LiteLLM-User-Name: '{{LIBRECHAT_USER_NAME}}'

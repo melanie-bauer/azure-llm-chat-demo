@@ -1,6 +1,3 @@
-// Standalone deployment for the Azure OpenAI account + model deployments.
-// Deploy this before main.bicep, then main.bicep references the account as existing.
-
 targetScope = 'resourceGroup'
 
 @description('Name of the Azure OpenAI account to create.')
@@ -13,6 +10,7 @@ param location string = resourceGroup().location
 param skuName string = 'S0'
 
 @allowed([ 'Enabled', 'Disabled' ])
+@description('Whether Azure OpenAI public network access is enabled.')
 param publicNetworkAccess string = 'Enabled'
 
 resource openAI 'Microsoft.CognitiveServices/accounts@2025-09-01' = {

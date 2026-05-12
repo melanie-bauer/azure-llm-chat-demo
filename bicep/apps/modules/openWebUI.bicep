@@ -1,13 +1,19 @@
-// Open WebUI as a Container App.
-// Public ingress, PostgreSQL + pgvector for state, Redis for session and
-// websocket consistency, generic OIDC against Entra ID. SQLite/Azure
-// Files persistence is intentionally not used.
-
+@description('Container App name for Open WebUI.')
 param openWebUIName string
+
+@description('Open WebUI container image.')
 param openWebUIImage string
+
+@description('Azure region for the Container App.')
 param location string
+
+@description('Resource ID of the Container Apps managed environment.')
 param envId string
+
+@description('Resource ID of the user-assigned managed identity used to read Key Vault secrets.')
 param userIdentityResourceId string
+
+@description('Key Vault name containing Open WebUI runtime secrets.')
 param keyVaultName string
 
 @description('Public URL of Open WebUI, e.g. https://chat.example.com.')
@@ -25,6 +31,7 @@ param oidcRedirectUri string
 @description('Display name shown on the OWUI sign-in button.')
 param oidcProviderName string = 'Entra ID'
 
+@description('OIDC scopes requested by Open WebUI.')
 param oidcScopes string = 'openid email profile'
 
 @description('Enable role mapping from OIDC roles claim.')
@@ -40,9 +47,11 @@ param oidcAllowedRoles string = 'user,admin'
 param oidcAdminRoles string = 'admin'
 
 @minValue(1)
+@description('Minimum number of Open WebUI replicas.')
 param minReplicas int = 1
 
 @minValue(1)
+@description('Maximum number of Open WebUI replicas.')
 param maxReplicas int = 1
 
 @description('CPU cores per replica.')

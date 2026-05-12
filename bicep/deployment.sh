@@ -11,7 +11,6 @@ BICEP_FILE="$APPS_DIR/main.bicep"
 INFRA_BICEP="$INFRA_DIR/main.bicep"
 PARAM_DEV="$APPS_DIR/dev.parameters.json"
 PARAM_LOCAL="$APPS_DIR/parameters.local.json"
-# Deploy infra first: bicep/infra/main.bicep (same projectName as apps; see docs/06-deployment.md).
 
 echo "==> Collecting resources to preserve (all Key Vaults + Azure OpenAI):"
 readarray -t VAULT_IDS < <(az keyvault list -g "$RG" --query "[].id" -o tsv 2>/dev/null || true)

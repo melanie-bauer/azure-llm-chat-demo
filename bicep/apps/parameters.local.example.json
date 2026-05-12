@@ -16,6 +16,7 @@
 
     "openWebUiUrl":                { "value": "" },
     "libreChatUrl":                { "value": "" },
+    "libreChatAdminUrl":           { "value": "" },
 
     "oidcProviderUrl":             { "value": "https://login.microsoftonline.com/REPLACE-TENANT-ID/v2.0/.well-known/openid-configuration" },
     "oidcOpenWebUIClientId":       { "value": "REPLACE-ME-entra-client-id" },

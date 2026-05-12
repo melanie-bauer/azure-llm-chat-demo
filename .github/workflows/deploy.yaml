@@ -63,6 +63,7 @@ jobs:
                 openWebUISecretKey="${{ secrets.OPEN_WEBUI_SECRET_KEY }}" \
                 openWebUiUrl="${{ vars.OPEN_WEBUI_URL }}" \
                 libreChatUrl="${{ vars.LIBRECHAT_URL }}" \
+                libreChatAdminUrl="${{ vars.LIBRECHAT_ADMIN_URL }}" \
                 oidcProviderUrl="${{ secrets.OIDC_PROVIDER_URL }}" \
                 oidcOpenWebUIClientId="${{ secrets.OIDC_OPENWEBUI_CLIENT_ID }}" \
                 oidcOpenWebUIClientSecret="${{ secrets.OIDC_OPENWEBUI_CLIENT_SECRET }}" \
@@ -91,6 +92,7 @@ jobs:
                 openWebUISecretKey="${{ secrets.OPEN_WEBUI_SECRET_KEY }}" \
                 openWebUiUrl="${{ vars.OPEN_WEBUI_URL }}" \
                 libreChatUrl="${{ vars.LIBRECHAT_URL }}" \
+                libreChatAdminUrl="${{ vars.LIBRECHAT_ADMIN_URL }}" \
                 oidcProviderUrl="${{ secrets.OIDC_PROVIDER_URL }}" \
                 oidcOpenWebUIClientId="${{ secrets.OIDC_OPENWEBUI_CLIENT_ID }}" \
                 oidcOpenWebUIClientSecret="${{ secrets.OIDC_OPENWEBUI_CLIENT_SECRET }}" \

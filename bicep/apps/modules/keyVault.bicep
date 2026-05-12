@@ -1,10 +1,7 @@
-// Azure Key Vault deployed via AVM.
-// This module creates:
-// - the Key Vault
-// - role assignments for app identity and admin principal
-// - all required secrets
-
+@description('Key Vault name.')
 param keyVaultName string
+
+@description('Azure region for the Key Vault.')
 param location string = resourceGroup().location
 
 @description('Resource tags applied to the vault.')
@@ -13,7 +10,7 @@ param tags object = {}
 @description('Object ID (principal ID) of the admin user/group/service principal in Entra ID.')
 param adminPrincipalId string
 
-@description('Principal type for admin principal.')
+@description('Principal type for the admin principal.')
 @allowed([ 'User', 'Group', 'ServicePrincipal' ])
 param adminPrincipalType string = 'User'
 
@@ -21,6 +18,7 @@ param adminPrincipalType string = 'User'
 param managedIdentityPrincipalId string
 
 @allowed([ 'Enabled', 'Disabled' ])
+@description('Whether Key Vault public network access is enabled.')
 param publicNetworkAccess string = 'Enabled'
 
 @description('Enable purge protection. Once enabled it cannot be disabled.')
@@ -28,60 +26,79 @@ param enablePurgeProtection bool = false
 
 @minValue(7)
 @maxValue(90)
+@description('Soft-delete retention period in days.')
 param softDeleteRetentionInDays int = 7
 
 @secure()
+@description('Secret value for LiteLLM master key.')
 param litellmMasterKeyValue string
 
 @secure()
+@description('Secret value for PostgreSQL administrator username.')
 param postgresUsernameValue string
 
 @secure()
+@description('Secret value for PostgreSQL administrator password.')
 param postgresPasswordValue string
 
 @secure()
+@description('Secret value for LiteLLM PostgreSQL connection string.')
 param litellmDatabaseUrlValue string
 
 @secure()
+@description('Secret value for Open WebUI PostgreSQL connection string.')
 param openWebUIDatabaseUrlValue string
 
 @secure()
+@description('Secret value for Open WebUI signing secret.')
 param openWebUISecretKeyValue string
 
 @secure()
+@description('Secret value for Redis connection string.')
 param redisUrlValue string
 
 @secure()
+@description('Secret value for Open WebUI OIDC client ID.')
 param oidcOpenWebUIClientId string
 
 @secure()
+@description('Secret value for Open WebUI OIDC client secret.')
 param oidcOpenWebUIClientSecret string
 
 @secure()
+@description('Secret value for LibreChat OIDC client ID.')
 param oidcLibreChatClientId string = ''
 
 @secure()
+@description('Secret value for LibreChat OIDC client secret.')
 param oidcLibreChatClientSecret string = ''
 
 @secure()
+@description('Secret value for Azure OpenAI API key.')
 param azureOpenAIKeyValue string = ''
 
 @secure()
+@description('Secret value for LibreChat JWT signing secret.')
 param librechatJwtSecretValue string = ''
 
 @secure()
+@description('Secret value for LibreChat refresh-token signing secret.')
 param librechatJwtRefreshSecretValue string = ''
 
 @secure()
+@description('Secret value for LibreChat MongoDB connection string.')
 param librechatMongoUriValue string = ''
 
 @secure()
+@description('Secret value for LibreChat OpenID session secret.')
 param librechatOidcSessionSecretValue string = ''
 
 @secure()
+@description('Secret value for LibreChat Admin Panel session secret.')
 param librechatAdminSessionSecretValue string = ''
 
 @secure()
+@description('Secret value for the LiteLLM virtual key used by frontends.')
 param litellmServiceKeyValue string
 
 var roles = loadJsonContent('../../azure-roles.json')

@@ -1,12 +1,19 @@
-// Storage account with Azure Files shares for the LiteLLM config file
-// and (optionally) the LibreChat config file. Open WebUI does not use
-// Azure Files; it runs on PostgreSQL + Redis instead.
-
+@description('Storage account name for config file shares.')
 param storageAccountName string
+
+@description('Azure region for the storage account.')
 param location string
+
+@description('Azure Files share name for LiteLLM config.')
 param litellmShareName string = 'litellm-config'
+
+@description('Azure Files share name for LibreChat config.')
 param librechatShareName string = 'librechat-config'
+
+@description('Whether to create and upload the LibreChat config share.')
 param deployLibreChat bool = false
+
+@description('Quota in GB for each config file share.')
 param fileShareQuotaGB int = 5
 
 resource storageAccount 'Microsoft.Storage/storageAccounts@2023-05-01' = {

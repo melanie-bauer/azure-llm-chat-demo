@@ -1,34 +1,42 @@
-// LiteLLM proxy as a Container App.
-// Public ingress on port 4000. Auth is enforced by LITELLM_MASTER_KEY
-// and per-virtual-key access controls inside the proxy itself.
-// Secrets are pulled from Key Vault via the user-assigned managed identity.
-
+@description('Container App name for LiteLLM.')
 param liteLLMName string
+
+@description('LiteLLM container image.')
 param liteLLMImage string
+
+@description('Azure region for the Container App.')
 param location string
+
+@description('Resource ID of the Container Apps managed environment.')
 param envId string
+
+@description('Resource ID of the user-assigned managed identity used to read Key Vault secrets.')
 param userIdentityResourceId string
+
+@description('Key Vault name containing LiteLLM runtime secrets.')
 param keyVaultName string
 
-@description('Optional Azure OpenAI endpoint to inject as AZURE_API_BASE.')
+@description('Azure OpenAI endpoint injected as AZURE_API_BASE. Leave empty to omit the variable.')
 param azureOpenAIBaseUrl string = ''
 
-@description('Optional Azure OpenAI api-version.')
+@description('Azure OpenAI API version injected as AZURE_API_VERSION.')
 param azureOpenAIApiVersion string = ''
 
-@description('Set true if Azure OpenAI is reached via key (secret AzureOpenAIKey in KV).')
+@description('Whether LiteLLM should read AzureOpenAIKey from Key Vault.')
 param useAzureOpenAIKey bool = false
 
 @minValue(1)
+@description('Minimum number of LiteLLM replicas.')
 param minReplicas int = 1
 
 @minValue(1)
+@description('Maximum number of LiteLLM replicas.')
 param maxReplicas int = 1
 
 @description('CPU cores per replica.')
 param cpu string = '1.0'
 
-@description('Memory per replica. LiteLLM + Python often needs >1Gi; 137/OOM is common at 1Gi.')
+@description('Memory per replica.')
 param memory string = '2Gi'
 
 var keyVaultBase = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/secrets'

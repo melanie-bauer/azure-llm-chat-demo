@@ -1,16 +1,19 @@
-// LibreChat Admin Panel as a Container App.
-// Standalone web UI that talks to the LibreChat API at /api/admin/*
-// for user / role / group / config management. Requires LibreChat >= v0.8.5.
-//
-// Env vars match the official table + .env.example:
-// https://www.librechat.ai/docs/features/admin_panel
-// https://github.com/ClickHouse/librechat-admin-panel/blob/main/.env.example
-
+@description('Container App name for the LibreChat Admin Panel.')
 param libreChatAdminName string
+
+@description('LibreChat Admin Panel container image.')
 param libreChatAdminImage string
+
+@description('Azure region for the Container App.')
 param location string
+
+@description('Resource ID of the Container Apps managed environment.')
 param envId string
+
+@description('Resource ID of the user-assigned managed identity used to read Key Vault secrets.')
 param userIdentityResourceId string
+
+@description('Key Vault name containing the admin panel session secret.')
 param keyVaultName string
 
 @description('Browser-facing URL of the LibreChat API server (e.g. https://librechat.example.com). Used for OAuth/SSO redirects.')
@@ -26,12 +29,17 @@ param adminSsoOnly bool = true
 param adminSessionIdleTimeoutMs int = 1800000
 
 @minValue(1)
+@description('Minimum number of admin panel replicas.')
 param minReplicas int = 1
 
 @minValue(1)
+@description('Maximum number of admin panel replicas.')
 param maxReplicas int = 1
 
+@description('CPU cores per replica.')
 param cpu string = '1.0'
+
+@description('Memory per replica.')
 param memory string = '2Gi'
 
 var keyVaultBase = 'https://${keyVaultName}${environment().suffixes.keyvaultDns}/secrets'

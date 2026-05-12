@@ -1,11 +1,13 @@
-// Azure Cosmos DB for MongoDB (serverless) used by LibreChat.
-// Serverless billing is per-request, the cheapest option for low-traffic
-// demos. LibreChat treats this as a standard MongoDB endpoint.
-
+@description('Cosmos DB for MongoDB account name.')
 param accountName string
+
+@description('Azure region for Cosmos DB.')
 param location string
+
+@description('MongoDB database name used by LibreChat.')
 param databaseName string = 'LibreChat'
 
+@description('Whether Cosmos DB public network access is enabled.')
 @allowed([ 'Enabled', 'Disabled' ])
 param publicNetworkAccess string = 'Enabled'
 

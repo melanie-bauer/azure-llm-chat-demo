@@ -1,21 +1,31 @@
-// LibreChat as a Container App (optional, comparison architecture).
-// Public ingress, MongoDB + Redis backed, generic OIDC against Entra ID.
-// MeiliSearch is intentionally omitted for the demo to keep the surface small.
-
+@description('Container App name for LibreChat.')
 param libreChatName string
+
+@description('LibreChat container image.')
 param libreChatImage string
+
+@description('Azure region for the Container App.')
 param location string
+
+@description('Resource ID of the Container Apps managed environment.')
 param envId string
+
+@description('Resource ID of the user-assigned managed identity used to read Key Vault secrets.')
 param userIdentityResourceId string
+
+@description('Key Vault name containing LibreChat runtime secrets.')
 param keyVaultName string
 
 @description('Public URL of LibreChat, e.g. https://librechat.example.com.')
 param libreChatUrl string
 
+@description('Public URL of the LibreChat Admin Panel. LibreChat uses this for admin-panel links.')
+param adminPanelUrl string
+
 @description('LiteLLM OpenAI-compatible base URL including /v1.')
 param litellmBaseUrl string
 
-@description('OIDC issuer URL (without trailing /.well-known/...).')
+@description('OIDC issuer URL without the well-known metadata suffix.')
 param oidcIssuer string
 
 @description('OIDC callback path on the LibreChat host.')
@@ -34,9 +44,11 @@ param librechatStorageName string = 'librechat-config'
 param librechatConfigPath string = '/app/config/librechat.yaml'
 
 @minValue(1)
+@description('Minimum number of LibreChat replicas.')
 param minReplicas int = 1
 
 @minValue(1)
+@description('Maximum number of LibreChat replicas.')
 param maxReplicas int = 1
 
 @description('CPU cores per replica.')
@@ -127,7 +139,7 @@ var coreEnv = [
   { name: 'LITELLM_API_KEY', secretRef: 'litellm-service-key' }
 
   { name: 'CONFIG_PATH', value: librechatConfigPath }
-  { name: 'ADMIN_PANEL_URL', value: 'https://librechat-admin.calmglacier-bdbc6f5e.swedencentral.azurecontainerapps.io' }
+  { name: 'ADMIN_PANEL_URL', value: adminPanelUrl }
 ]
 
 var roleEnv = empty(oidcRequiredRoles) ? [] : [
